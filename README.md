@@ -32,3 +32,6 @@ Additionally, any of the configuration variables set in the `.env` file can be s
 export HTE_POSTGRES_PASSWORD=password
 ```
 This can help keep sensitive credentials in working memory only and not in plaintext. Environmental variables will override any variable set in the `.env` file.
+
+## Jupyter
+An example Jupyter notebook and sql queries are provided under the jupyter/ directory showing how one can use hte_client in a jupyter environment. Configuration is still handled as above.

@@ -24,7 +24,7 @@ repos:
     rev: v1.3.0
     hooks:
       - id: forbid-tabs
-        exclude: ^docs/Makefile$|^clients/gen/go.sh|\.gitmodules$
+        exclude: ^docs/Makefile$|^jupyter/|\.gitmodules$
       - id: insert-license
         name: Add license for all shell files
         exclude: ^\.github/.*$|docs_src/
