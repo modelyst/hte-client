@@ -1,0 +1,37 @@
+ARG PYTHON_VERSION="3.10"
+
+FROM python:${PYTHON_VERSION}-slim as builder
+
+ARG HOME_DIR=/usr/src/app
+ENV HOME_DIR=${HOME_DIR}
+WORKDIR ${HOME_DIR}
+
+# Install poetry
+ENV POETRY_VERSION==1.2.0b2
+RUN pip install "poetry==$POETRY_VERSION"
+# Add the lock file
+COPY poetry.lock pyproject.toml  /usr/src/app/
+# Project initialization:
+RUN poetry config virtualenvs.in-project true \
+    && poetry install --without dev
+
+# Run final build and only copy the virtual env
+FROM python:${PYTHON_VERSION}-slim as final
+
+ARG HOME_DIR=/usr/src/app
+WORKDIR ${HOME_DIR}
+COPY --from=builder ${HOME_DIR}/.venv ${HOME_DIR}/.venv
+ENV PATH="${HOME_DIR}/.venv/bin:$PATH"
+ENV PYTHONPATH=${HOME_DIR}/src:${PYTHONPATH}
+ARG RUNTIME_APT_DEPS="\
+    postgresql \
+    libpq-dev \
+    sudo"
+RUN apt-get update -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends $RUNTIME_APT_DEPS \
+    && apt-get autoremove -yqq --purge \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY ./src ./src
+CMD ["uvicorn", "hte_client.api.main:app", "--host", "0.0.0.0", "--port", "80","--reload"]

@@ -1,0 +1,8 @@
+# ignore everything
+**
+
+# Ignore everything
+**
+!pyproject.toml
+!poetry.lock
+!src/

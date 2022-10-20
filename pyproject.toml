@@ -1,0 +1,42 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
+[tool.black]
+line-length = 110
+skip-string-normalization = true
+target-version = ['py36', 'py37', 'py38']
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v$version"
+version = "0.1.0"
+version_files = [
+  "pyproject.toml:version",
+  "src/hte_client/__init__.py",
+]
+
+[tool.poetry]
+authors = ["Michael Statt <michael.statt@modelyst.io>"]
+description = "HTE Plotting and CLI Tool"
+license = "Apache-2.0"
+name = "hte-client"
+version = "0.1.0"
+
+[tool.poetry.scripts]
+hte-client = "hte_client.__main__:main"
+
+[tool.poetry.dependencies]
+python = ">=3.8.1,<4.0"
+matplotlib = "^3.6.1"
+typer = "^0.6.1"
+modelyst-dbgen = {version = "^1.0.0a7", allow-prereleases = true}
+pandas = "^1.5.1"
+
+[tool.pytest.ini_options]
+markers = [
+  "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
+testpaths = [
+  "tests",
+]
