@@ -24,11 +24,12 @@ from hte_client.utils.log import console
 
 THEME_COLOR = typer.colors.GREEN
 theme = Theme({'theme': 'green'})
-console.use_theme(theme)
-LOGO = """
-╦ ╦╔╦╗╔═╗  ╔═╗╦  ╔═╗╔╦╗╔╦╗╦╔╗╔╔═╗
-╠═╣ ║ ║╣   ╠═╝║  ║ ║ ║  ║ ║║║║║ ╦
-╩ ╩ ╩ ╚═╝  ╩  ╩═╝╚═╝ ╩  ╩ ╩╝╚╝╚═╝
+LOGO = r"""
+ _,_ ___ __,     _, _,  _ __, _, _ ___
+ |_|  |  |_     / ` |   | |_  |\ |  |
+ | |  |  |   ~~ \ , | , | |   | \|  |
+ ~ ~  ~  ~~~     ~  ~~~ ~ ~~~ ~  ~  ~
+
 """
 
 VERSION = f"""VERSION: {__version__}"""
@@ -40,7 +41,7 @@ def delimiter(color: str = THEME_COLOR):
 
 LOGO_STYLE = Panel.fit(
     Group(Panel(Text(LOGO)), Panel(Text(VERSION, justify='center'))),
-    style='theme',
+    style=THEME_COLOR,
 )
 
 
