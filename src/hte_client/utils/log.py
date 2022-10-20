@@ -20,12 +20,12 @@ from rich.logging import RichHandler
 from hte_client.configuration import settings
 
 _ROOT_LOGGER_NAME = "hte_client"
+console = Console()
 
 
 def setup_logger():
     logger = logging.getLogger(_ROOT_LOGGER_NAME)
     logger.setLevel(settings.LOG_LEVEL.get_log_level())
-    console = Console()
     logger.addHandler(RichHandler(console=console))
     return logger
 

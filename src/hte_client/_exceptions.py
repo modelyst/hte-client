@@ -13,21 +13,13 @@
 #   limitations under the License.
 
 
+class HTEClientException(Exception):
+    """Base Exception for hte-client."""
+
+
 class DatabaseException(Exception):
     """Base Exception for errors encountered during interaction with the database."""
 
 
-class DropMetadataException(DatabaseException):
-    """Error occurred during metadata dropping."""
-
-
-class CreateMetadataException(DatabaseException):
-    """Error occurred during metadata create_all."""
-
-
-class QueryResultsException(Exception):
-    """Exception to raise when query results are not expected."""
-
-
-class RequiredElementNotFoundInQuery(Exception):
-    """Exception to raise when a required composition based query does not contain all the required elements."""
+class InvalidDOIUrl(HTEClientException):
+    """Raised when a DOI url cannot be found at https://doi.org."""

@@ -13,12 +13,14 @@
 #   limitations under the License.
 from pathlib import Path
 from typing import List, Optional
+from uuid import UUID
 
 import typer
 from rich.table import Table
 
 import hte_client.cli.styles as styles
-from hte_client.core.queries import run_raw_query
+from hte_client._enums import EntityType
+from hte_client.core.queries import get_doi, run_raw_query
 
 query_app = typer.Typer(name='query', no_args_is_help=True, help="Test connection to the database.")
 
@@ -33,7 +35,7 @@ def run_raw_query_command(
     ),
 ):
     """
-    Test connections to the database
+    Run raw sql queries against the database
     """
     if sql_file:
         command = sql_file.read_text()
@@ -45,7 +47,7 @@ def run_raw_query_command(
     with styles.console.status('Running Query...'):
         result = run_raw_query(command)
     if result:
-        table = Table(title=sql_file or command)
+        table = Table(title=str(sql_file) or command)
         if fields:
             if len(fields) != len(result[0]):
                 raise typer.BadParameter(
@@ -67,3 +69,23 @@ def run_raw_query_command(
         styles.console.print(table)
     else:
         styles.bad_typer_print('No data returned.')
+
+
+@query_app.command(name="get-doi")
+def get_doi_command(
+    entity_type: EntityType = typer.Option(..., '--entity', help='Path to sql file to run query from'),
+    entity_id: Optional[UUID] = typer.Option(None, '--id', help='Path to sql file to run query from'),
+    entity_label: Optional[str] = typer.Option(None, '--label', help='Path to sql file to run query from'),
+):
+    """
+    Test connections to the database
+    """
+    doi = get_doi(entity_type=entity_type, entity_id=entity_id, entity_label=entity_label)
+    if doi:
+        styles.console.print(f'Entity {entity_type} has doi: {doi}')
+        styles.console.print(f'Access it at the url https://doi.org/{doi}')
+        styles.console.print(
+            f'Download it with command \'hte-client download doi --doi {doi} --path output\''
+        )
+    else:
+        styles.bad_typer_print(f'Entity {entity_type}(id={entity_id}) does not have a doi')

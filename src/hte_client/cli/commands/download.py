@@ -12,59 +12,64 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
+from uuid import UUID
 
 import typer
-from rich.table import Table
 
 import hte_client.cli.styles as styles
+from hte_client._enums import EntityType
+from hte_client._exceptions import InvalidDOIUrl
+from hte_client.core.download import download_doi
+from hte_client.core.queries import get_doi
 
 download_app = typer.Typer(
     name='download', no_args_is_help=True, help="Download Zip files from sample and process information."
 )
 
 
-@download_app.command(name="run")
-def download_run(
-    sql_file: Optional[Path] = typer.Option(None, '--file', help='Path to sql file to run download from'),
-    raw_sql: Optional[str] = typer.Option(None, '--raw', help='Raw sql to run.'),
-    number_of_rows: int = typer.Option(10, '-n', help='Number of rows to print to the screen.'),
-    fields: Optional[List[str]] = typer.Option(
-        None, '--field', help='Number of rows to print to the screen.'
-    ),
+@download_app.command(name="doi")
+def download_doi_command(
+    doi: str = typer.Option(..., '--doi', help='Doi to download'),
+    path: Path = typer.Option(..., '--path', help='Path to download the doi to'),
 ):
     """
-    Test connections to the database
+    Download a doi from Caltech Data.
     """
-    if sql_file:
-        command = sql_file.read_text()
-    elif raw_sql:
-        command = raw_sql
-    else:
-        raise typer.BadParameter('Need to provide --file or --raw.')
+    with styles.console.status('Downloading DOI zip...'):
+        try:
+            download_doi(doi, path)
+        except InvalidDOIUrl:
+            styles.bad_typer_print(f'DOI provided is invalid, see https://doi.org/{doi} for details')
+            raise typer.Exit(code=1)
+    styles.delimiter()
+    styles.console.print(f'Finished downloading, files extracted to {str(path)!r}')
 
-    with styles.console.status('Running download...'):
-        result = run_raw_download(command)
-    if result:
-        table = Table(title=sql_file or command)
-        if fields:
-            if len(fields) != len(result[0]):
-                raise typer.BadParameter(
-                    f'Incorrect number of fields provided for download output. Expected {len(result[0])} but given {len(fields)}',
-                    param_hint='fields',
-                )
-            for field in fields:
-                table.add_column(field)
-        else:
-            for i in range(len(result[0])):
-                table.add_column(f'Column {i}')
 
-        styles.console.print(
-            f'download finished. It returned {len(result)} row(s). Showing first {number_of_rows} rows'
-        )
-        styles.delimiter()
-        for row in result[:number_of_rows]:
-            table.add_row(*row)
-        styles.console.print(table)
-    else:
-        styles.bad_typer_print('No data returned.')
+@download_app.command(name="entity")
+def download_entity(
+    entity_type: EntityType = typer.Option(..., '--entity', help='Path to sql file to run query from'),
+    entity_id: Optional[UUID] = typer.Option(None, '--id', help='Path to sql file to run query from'),
+    entity_label: Optional[str] = typer.Option(None, '--label', help='Path to sql file to run query from'),
+    path: Path = typer.Option(..., '--path', help='Path to download the doi to'),
+):
+    """
+    Download a doi from Caltech Data using an entity type and label/uuid.
+    """
+    with styles.console.status('Getting doi...'):
+        doi = get_doi(entity_type=entity_type, entity_id=entity_id, entity_label=entity_label)
+        lable_str = f'id={entity_id}' if entity_id else f'label={entity_label}'
+        if doi is None:
+            styles.bad_typer_print(f'No doi found for entity {entity_type}({lable_str})')
+            raise typer.Exit(code=1)
+    with styles.console.status('Downloading DOI zip...'):
+        try:
+            download_doi(doi, path)
+        except InvalidDOIUrl:
+            styles.bad_typer_print(
+                f'DOI found for entity {entity_type}({lable_str}) is invalid, see https://doi.org/{doi} for details'
+            )
+            raise typer.Exit(code=1)
+
+    styles.delimiter()
+    styles.console.print(f'Finished downloading, files extracted to {str(path)!r}')

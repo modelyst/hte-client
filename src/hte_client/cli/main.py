@@ -21,6 +21,7 @@ import typer
 from hte_client import __version__
 from hte_client.cli import styles
 from hte_client.cli.commands.database import database_app
+from hte_client.cli.commands.download import download_app
 from hte_client.cli.commands.query import query_app
 from hte_client.configuration import settings
 from hte_client.utils.log import setup_logger
@@ -30,6 +31,7 @@ logger = logging.getLogger(__name__)
 app = typer.Typer(no_args_is_help=True)
 app.add_typer(database_app)
 app.add_typer(query_app)
+app.add_typer(download_app)
 
 
 @app.callback()

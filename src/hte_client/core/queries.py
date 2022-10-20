@@ -13,16 +13,50 @@
 #   limitations under the License.
 
 import logging
+from typing import Optional, Union
+from uuid import UUID
 
-from sqlmodel import Session, text
+from sqlmodel import Session, select, text
 
+from hte_client._enums import EntityType
 from hte_client.database.session import get_engine
+from hte_client.schema.esamp import Collection
+from hte_client.schema.jcap import JcapAnalysis, JcapRun
 
 logger = logging.getLogger(__name__)
+engine = get_engine()
 
 
 def run_raw_query(query: str):
-    engine = get_engine()
     with Session(engine) as session:
         result = session.exec(text(query)).all()
+    return result
+
+
+def get_doi(entity_type: EntityType, entity_id: Optional[UUID], entity_label: Optional[str]) -> Optional[str]:
+    table: Union[Collection, JcapRun, JcapAnalysis]
+    if entity_type == EntityType.PLATE:
+        table = Collection
+    elif entity_type == EntityType.RUN:
+        table = JcapRun
+    elif entity_type == EntityType.ANALYSIS:
+        table = JcapAnalysis
+    else:
+        raise ValueError(f'Unknown entity_type: {entity_type}')
+
+    # Ensure we have at least an id or label
+    if not (entity_label or entity_id):
+        raise ValueError('Must provide at least an id or label.')
+    # Check that we provided label for the right entity type
+    if entity_label and entity_type not in EntityType.PLATE:
+        raise ValueError(f'Cannot provide a label for entity: {entity_type}')
+
+    stmt = select(table.doi)
+    if entity_id:
+        stmt = stmt.where(table.id == entity_id)
+    elif entity_label:
+        stmt = stmt.where(table.label == entity_label)
+
+    with Session(engine) as session:
+        result = session.exec(stmt).one_or_none()
     return result

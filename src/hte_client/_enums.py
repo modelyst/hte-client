@@ -15,8 +15,6 @@
 import logging
 from enum import Enum
 
-import matplotlib.cm as cm
-
 
 class LogLevel(str, Enum):
     DEBUG = "DEBUG"
@@ -29,6 +27,12 @@ class LogLevel(str, Enum):
         return getattr(logging, self)
 
 
+class EntityType(str, Enum):
+    PLATE = "plate"
+    RUN = "run"
+    ANALYSIS = "analysis"
+
+
 class ColorMap(str, Enum):
     jet = "jet"
     viridis = "viridis"
@@ -36,9 +40,6 @@ class ColorMap(str, Enum):
     inferno = "inferno"
     magma = "magma"
     cividis = "cividis"
-
-    def get_cmap(self):
-        return getattr(cm, self.value)
 
 
 class Fom(str, Enum):

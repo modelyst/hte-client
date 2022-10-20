@@ -14,16 +14,17 @@
 
 """Utilities for printing things to screen for CLI."""
 import typer
-from rich.console import Console, Group
+from rich.console import Group
 from rich.panel import Panel
 from rich.text import Text
 from rich.theme import Theme
 
 from hte_client import __version__
+from hte_client.utils.log import console
 
 THEME_COLOR = typer.colors.GREEN
 theme = Theme({'theme': 'green'})
-console = Console(theme=theme)
+console.use_theme(theme)
 LOGO = """
 ╦ ╦╔╦╗╔═╗  ╔═╗╦  ╔═╗╔╦╗╔╦╗╦╔╗╔╔═╗
 ╠═╣ ║ ║╣   ╠═╝║  ║ ║ ║  ║ ║║║║║ ╦
