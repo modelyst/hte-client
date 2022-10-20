@@ -18,18 +18,18 @@ from typing import Optional
 from dbgen import Entity, IDType
 from sqlmodel import Field
 
-from hte_client.schema.base import sa_registry
+from hte_client.schema.base import BaseTable, sa_registry
 
 current_prefix = 'jcap'
 # Upload Logs
-class UploadLog(Entity, table=True, registry=sa_registry):
+class UploadLog(BaseTable, table=True, registry=sa_registry):
     __tablename__ = f'{current_prefix}_upload_log'
     __identifying__ = {'path'}
     path: str
     timestamp: datetime
 
 
-class UploadLogLine(Entity, table=True, registry=sa_registry):
+class UploadLogLine(BaseTable, table=True, registry=sa_registry):
     __tablename__ = f'{current_prefix}_upload_log_line'
     __identifying__ = {'upload_log_id', 'path'}
     upload_log_id: IDType = UploadLog.foreign_key()
@@ -70,14 +70,14 @@ class JcapAnalysis(BaseJcapFile, table=True, registry=sa_registry):
     jcap_experiment_id: IDType = JcapExperiment.foreign_key()
 
 
-class JcapExperimentRun(Entity, table=True, registry=sa_registry, all_identifying=True):
+class JcapExperimentRun(BaseTable, table=True, registry=sa_registry, all_identifying=True):
     __tablename__ = f'{current_prefix}_experiment_run'
     run_int: int
     jcap_experiment_id: IDType = JcapExperiment.foreign_key()
     jcap_run_id: IDType = JcapRun.foreign_key()
 
 
-class JcapSubAnalysis(Entity, table=True, registry=sa_registry):
+class JcapSubAnalysis(BaseTable, table=True, registry=sa_registry):
     __tablename__ = f'{current_prefix}_sub_analysis'
     __identifying__ = {'jcap_analysis_id', 'sub_analysis_int'}
     jcap_analysis_id: IDType = JcapAnalysis.foreign_key()
@@ -89,7 +89,7 @@ class JcapSubAnalysis(Entity, table=True, registry=sa_registry):
     run_use_option: Optional[str]
 
 
-class JcapPlateMap(Entity, table=True, registry=sa_registry):
+class JcapPlateMap(BaseTable, table=True, registry=sa_registry):
     __tablename__ = f'{current_prefix}_plate_map'
     __identifying__ = {'map_id', 'map_type'}
     map_type: str
@@ -100,7 +100,7 @@ class JcapPlateMap(Entity, table=True, registry=sa_registry):
     min_y: float
 
 
-class JcapPlateMapRow(Entity, table=True, registry=sa_registry):
+class JcapPlateMapRow(BaseTable, table=True, registry=sa_registry):
     __tablename__ = f'{current_prefix}_plate_map_row'
     __identifying__ = {'jcap_plate_map_id', 'jcap_sample_id'}
     jcap_plate_map_id: IDType = JcapPlateMap.foreign_key()
@@ -112,7 +112,7 @@ class JcapPlateMapRow(Entity, table=True, registry=sa_registry):
     comp_dict: Optional[dict]
 
 
-class JcapFomFile(Entity, table=True, registry=sa_registry):
+class JcapFomFile(BaseTable, table=True, registry=sa_registry):
     __tablename__ = f'{current_prefix}_fom_file'
     __identifying__ = {'filename', 'jcap_sub_analysis_id'}
     jcap_sub_analysis_id: IDType = JcapSubAnalysis.foreign_key()
@@ -121,7 +121,7 @@ class JcapFomFile(Entity, table=True, registry=sa_registry):
     headers: Optional[str]
 
 
-class JcapPatternFile(Entity, table=True, registry=sa_registry):
+class JcapPatternFile(BaseTable, table=True, registry=sa_registry):
     __tablename__ = f'{current_prefix}_pattern_file'
     __identifying__ = {'filename', 'jcap_sub_analysis_id'}
     filename: str
@@ -133,7 +133,7 @@ class JcapPatternFile(Entity, table=True, registry=sa_registry):
     jcap_sub_analysis_id: IDType = JcapSubAnalysis.foreign_key()
 
 
-class JcapLoading(Entity, table=True, registry=sa_registry):
+class JcapLoading(BaseTable, table=True, registry=sa_registry):
     __tablename__ = f'{current_prefix}_loading'
     __identifying__ = {'jcap_fom_file_id', 'jcap_sample_id', 'jcap_plate_id', 'runint', 'line_number'}
     jcap_sample_id: int

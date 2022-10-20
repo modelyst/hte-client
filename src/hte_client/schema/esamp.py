@@ -15,17 +15,17 @@
 from datetime import datetime
 from typing import List, Optional
 
-from dbgen import Entity, IDType
+from dbgen import IDType
 from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, Relationship
 
-from hte_client.schema.base import sa_registry
+from hte_client.schema.base import BaseTable, sa_registry
 
 indexed_col = Field(..., sa_column_kwargs={'index': True})
 
 
-class Collection(Entity, table=True, registry=sa_registry):
+class Collection(BaseTable, table=True, registry=sa_registry):
     __identifying__ = {'label', 'type'}
     label: str = indexed_col
     type: str = indexed_col
@@ -36,7 +36,7 @@ class Collection(Entity, table=True, registry=sa_registry):
     doi: Optional[str]
 
 
-class Sample(Entity, table=True, registry=sa_registry):
+class Sample(BaseTable, table=True, registry=sa_registry):
     __identifying__ = {'label', 'type'}
     label: str = indexed_col
     type: str = indexed_col
@@ -51,21 +51,21 @@ class Sample(Entity, table=True, registry=sa_registry):
     sample_processes: List['SampleProcess'] = Relationship(back_populates="sample")
 
 
-class CollectionSample(Entity, table=True, registry=sa_registry):
+class CollectionSample(BaseTable, table=True, registry=sa_registry):
     __tablename__ = 'collection__sample'
     __identifying__ = {'sample_id', 'collection_id'}
     sample_id: IDType = Sample.foreign_key()
     collection_id: IDType = Collection.foreign_key()
 
 
-class SampleParent(Entity, table=True, registry=sa_registry):
+class SampleParent(BaseTable, table=True, registry=sa_registry):
     __tablename__ = 'sample_parent'
     __identifying__ = {'parent_id', 'child_id'}
     parent_id: IDType = Sample.foreign_key()
     child_id: IDType = Sample.foreign_key()
 
 
-class ProcessDetail(Entity, table=True, registry=sa_registry):
+class ProcessDetail(BaseTable, table=True, registry=sa_registry):
     __tablename__ = 'process_detail'
     __identifying__ = {'type', 'technique', 'parameters'}
     type: str = indexed_col
@@ -74,7 +74,7 @@ class ProcessDetail(Entity, table=True, registry=sa_registry):
     mapped_parameters: Optional[dict]
 
 
-class Process(Entity, table=True, registry=sa_registry):
+class Process(BaseTable, table=True, registry=sa_registry):
     __identifying__ = {'machine_name', 'timestamp', 'ordering'}
     machine_name: str
     timestamp: datetime
@@ -85,7 +85,7 @@ class Process(Entity, table=True, registry=sa_registry):
     sample_processes: List['SampleProcess'] = Relationship(back_populates="process")
 
 
-class SampleProcess(Entity, table=True, registry=sa_registry):
+class SampleProcess(BaseTable, table=True, registry=sa_registry):
     __tablename__ = 'sample_process'
     __identifying__ = {'sample_id', 'process_id', 'relationship'}
     sample_id: IDType = Sample.foreign_key()
@@ -100,7 +100,7 @@ class SampleProcess(Entity, table=True, registry=sa_registry):
     process: Optional[Process] = Relationship(back_populates="sample_processes")
 
 
-class ProcessData(Entity, table=True, registry=sa_registry):
+class ProcessData(BaseTable, table=True, registry=sa_registry):
     __tablename__ = 'process_data'
     __identifying__ = {'release_name', 'path', 'file_name', 'begin_line', 'end_line', 'bucket_name'}
     bucket_name: Optional[str]
@@ -114,21 +114,21 @@ class ProcessData(Entity, table=True, registry=sa_registry):
     extracted_path: Optional[str]
 
 
-class SampleProcessProcessData(Entity, table=True, registry=sa_registry):
+class SampleProcessProcessData(BaseTable, table=True, registry=sa_registry):
     __tablename__ = 'sample_process_process_data'
     __identifying__ = {'sample_process_id', 'process_data_id'}
     sample_process_id: IDType = SampleProcess.foreign_key()
     process_data_id: IDType = ProcessData.foreign_key()
 
 
-class AnalysisDetail(Entity, table=True, registry=sa_registry):
+class AnalysisDetail(BaseTable, table=True, registry=sa_registry):
     __tablename__ = 'analysis_details'
     __identifying__ = {'name', 'details'}
     name: str
     details: dict
 
 
-class Analysis(Entity, table=True, registry=sa_registry):
+class Analysis(BaseTable, table=True, registry=sa_registry):
     __tablename__ = 'analysis'
     __identifying__ = {'name', 'input', 'output', 'analysis_detail_id'}
     name: str
@@ -137,7 +137,7 @@ class Analysis(Entity, table=True, registry=sa_registry):
     analysis_detail_id: IDType = AnalysisDetail.foreign_key()
 
 
-class ProcessDataAnalysis(Entity, table=True, registry=sa_registry):
+class ProcessDataAnalysis(BaseTable, table=True, registry=sa_registry):
     __tablename__ = 'process_data_analysis'
     __identifying__ = {'keyword', 'process_data_id', 'analysis_id'}
     keyword: str
