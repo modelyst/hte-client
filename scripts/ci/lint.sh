@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 #   Copyright 2022 Modelyst LLC
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,3 +13,12 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+
+set -e
+set -x
+flake8 --version
+flake8 src/hte_client tests
+black --version
+black src/hte_client tests --config=./pyproject.toml --check
+isort --version
+isort src/hte_client tests --check-only

@@ -74,7 +74,6 @@ class GroupBy(str, Enum):
     MIN = 'min'
 
 
-
 class PlotType(str, Enum):
     tern = 'ternary'
     quatslice_5 = 'quatslice_5'

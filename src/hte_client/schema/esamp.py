@@ -15,7 +15,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from dbgen.utils.typing import IDType, Entity
+from dbgen.utils.typing import Entity, IDType
 from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, Relationship

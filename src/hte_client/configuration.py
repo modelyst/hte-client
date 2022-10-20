@@ -18,7 +18,7 @@ from typing import Any, Dict, Optional, Union
 
 from pydantic import BaseSettings, PostgresDsn, SecretStr, parse_obj_as, validator
 
-from hte_client._enums import  LogLevel
+from hte_client._enums import LogLevel
 
 
 class PostgresqlDsn(PostgresDsn):
@@ -63,7 +63,6 @@ class Settings(BaseSettings):
             port=values["POSTGRES_PORT"],
             path=f"/{values['POSTGRES_DB']}",
         )
-
 
     class Config:
         case_sensitive = True

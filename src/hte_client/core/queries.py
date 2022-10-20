@@ -20,7 +20,8 @@ from hte_client.database.session import get_engine
 
 logger = logging.getLogger(__name__)
 
-def run_raw_query(query:str):
+
+def run_raw_query(query: str):
     engine = get_engine()
     with Session(engine) as session:
         result = session.exec(text(query)).all()

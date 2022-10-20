@@ -12,7 +12,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 from pathlib import Path
-from typing import Optional,List
+from typing import List, Optional
 
 import typer
 from rich.table import Table
@@ -20,14 +20,17 @@ from rich.table import Table
 import hte_client.cli.styles as styles
 from hte_client.core.queries import run_raw_query
 
-query_app = typer.Typer(name='query', no_args_is_help=True,help="Test connection to the database.")
+query_app = typer.Typer(name='query', no_args_is_help=True, help="Test connection to the database.")
+
 
 @query_app.command(name="run")
 def run_raw_query_command(
-    sql_file: Optional[Path] = typer.Option(None,'--file', help='Path to sql file to run query from'),
-    raw_sql: Optional[str] = typer.Option(None, '--raw',help='Raw sql to run.'),
-    number_of_rows: int = typer.Option(10, '-n',help='Number of rows to print to the screen.'),
-    fields: Optional[List[str]] = typer.Option(None, '--field',help='Number of rows to print to the screen.')
+    sql_file: Optional[Path] = typer.Option(None, '--file', help='Path to sql file to run query from'),
+    raw_sql: Optional[str] = typer.Option(None, '--raw', help='Raw sql to run.'),
+    number_of_rows: int = typer.Option(10, '-n', help='Number of rows to print to the screen.'),
+    fields: Optional[List[str]] = typer.Option(
+        None, '--field', help='Number of rows to print to the screen.'
+    ),
 ):
     """
     Test connections to the database
@@ -45,14 +48,19 @@ def run_raw_query_command(
         table = Table(title=sql_file or command)
         if fields:
             if len(fields) != len(result[0]):
-                raise typer.BadParameter(f'Incorrect number of fields provided for query output. Expected {len(result[0])} but given {len(fields)}',param_hint='fields')
+                raise typer.BadParameter(
+                    f'Incorrect number of fields provided for query output. Expected {len(result[0])} but given {len(fields)}',
+                    param_hint='fields',
+                )
             for field in fields:
                 table.add_column(field)
         else:
             for i in range(len(result[0])):
                 table.add_column(f'Column {i}')
 
-        styles.console.print(f'Query finished. It returned {len(result)} row(s). Showing first {number_of_rows} rows')
+        styles.console.print(
+            f'Query finished. It returned {len(result)} row(s). Showing first {number_of_rows} rows'
+        )
         styles.delimiter()
         for row in result[:number_of_rows]:
             table.add_row(*row)

@@ -14,9 +14,10 @@
 import typer
 
 import hte_client.cli.styles as styles
-from hte_client.database.session import  get_connection
+from hte_client.database.session import get_connection
 
-database_app = typer.Typer(name='database', no_args_is_help=True,help="Test connection to the database.")
+database_app = typer.Typer(name='database', no_args_is_help=True, help="Test connection to the database.")
+
 
 @database_app.command(name="test")
 def test_connection(

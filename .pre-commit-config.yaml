@@ -135,11 +135,11 @@ repos:
       - id: no-relative-imports
         language: pygrep
         name: No relative imports
-        description: DBgen is to use absolute imports only
+        description: HTE Client is to use absolute imports only
         entry: "^\\s*from\\s+\\."
         pass_filenames: true
         files: \.py$
-        exclude: ^src/dbgen/cli/newfiles/|^tests/|^docs_src/tutorials|^examples/simple
+        exclude: ^tests/|^examples/simple
       - id: consistent-pylint
         language: pygrep
         name: Check for inconsistent pylint disable/enable without space
