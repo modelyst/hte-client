@@ -55,7 +55,7 @@ class Connection(BaseModel):
         return cls(
             host=uri.host or "localhost",
             user=uri.user,
-            password=urllib.parse.urlencode(password.get_secret_value()) if password else uri.password,
+            password=urllib.parse.quote(password.get_secret_value()) if password else uri.password,
             port=uri.port or 5432,
             database=uri.path.lstrip("/"),
             schema=schema,
