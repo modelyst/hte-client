@@ -34,10 +34,23 @@ def run_raw_query(query: str):
     return result
 
 
-def get_process_history(sample_id: UUID, sample_label: str):
+def get_process_history(sample_id: Optional[UUID] = None, sample_label: Optional[str] = None):
+    """
+    Get the process history of a given sample_id or sample_id.
+
+    Only a sample_id or sample_label should be provided not both
+
+    Args:
+        sample_id (Optional[UUID]): The UUID of the sample to get the history for
+        sample_label (Optional[str]): The Label of the sample to get the history for
+
+    Returns:
+        Tuple[List[str],List[str]]: A tuple of the list of time ordered types, and list of time ordered techniques.
+    """
     with Session(engine) as session:
         stmt = (
             select(
+                func.ARRAY_AGG(aggregate_order_by(Process.id, Process.timestamp, Process.ordering)),
                 func.ARRAY_AGG(aggregate_order_by(ProcessDetail.type, Process.timestamp, Process.ordering)),
                 func.ARRAY_AGG(
                     aggregate_order_by(ProcessDetail.technique, Process.timestamp, Process.ordering)

@@ -21,4 +21,4 @@ __maintainer_email__ = "michael.statt@modelyst.io"
 __version__ = "0.1.0"
 
 
-from hte_client.core.queries import run_raw_query
+from hte_client.core.queries import get_process_history, run_raw_query

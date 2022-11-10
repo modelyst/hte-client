@@ -103,7 +103,7 @@ def get_process_history_command(
     id_str = f'id={sample_id}' if sample_id else f'label={sample_label}'
     id_str = f'Sample({id_str})'
     if process_history:
-        type_list, tech_list = process_history
+        _process_ids, type_list, tech_list = process_history
         history = (f'{proc_type}({tech})' for proc_type, tech in zip(type_list, tech_list))
         styles.console.print(f'{id_str} has history:')
         history_string = ' -> '.join(history)
