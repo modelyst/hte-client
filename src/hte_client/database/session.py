@@ -26,7 +26,9 @@ logger = logging.getLogger(__name__)
 
 def get_connection() -> Connection:
     connection = Connection.from_uri(
-        settings.POSTGRES_DSN, settings.POSTGRES_SCHEMA, password=settings.POSTGRES_PASSWORD
+        settings.POSTGRES_DSN,
+        settings.POSTGRES_SCHEMA,
+        password=settings.POSTGRES_PASSWORD,
     )
     return connection
 

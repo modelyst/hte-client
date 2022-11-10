@@ -16,11 +16,12 @@ import logging
 from typing import Optional, Union
 from uuid import UUID
 
-from sqlmodel import Session, select, text
+from sqlalchemy.dialects.postgresql import aggregate_order_by
+from sqlmodel import Session, func, select, text
 
 from hte_client._enums import EntityType
 from hte_client.database.session import get_engine
-from hte_client.schema.esamp import Collection
+from hte_client.schema.esamp import Collection, Process, ProcessDetail, Sample, SampleProcess
 from hte_client.schema.jcap import JcapAnalysis, JcapRun
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,29 @@ engine = get_engine()
 def run_raw_query(query: str):
     with Session(engine) as session:
         result = session.exec(text(query)).all()
+    return result
+
+
+def get_process_history(sample_id: UUID, sample_label: str):
+    with Session(engine) as session:
+        stmt = (
+            select(
+                func.ARRAY_AGG(aggregate_order_by(ProcessDetail.type, Process.timestamp, Process.ordering)),
+                func.ARRAY_AGG(
+                    aggregate_order_by(ProcessDetail.technique, Process.timestamp, Process.ordering)
+                ),
+            )
+            .select_from(Sample)
+            .join(SampleProcess)
+            .join(Process)
+            .join(ProcessDetail)
+        )
+        if sample_id:
+            stmt = stmt.where(Sample.id == sample_id)
+        elif sample_label:
+            stmt = stmt.where(Sample.label == sample_label)
+        stmt = stmt.group_by(Sample.id)
+        result = session.exec(stmt).one_or_none()
     return result
 
 

@@ -11,6 +11,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+import asyncio
 from pathlib import Path
 from typing import Optional
 from uuid import UUID
@@ -19,8 +20,14 @@ import typer
 
 import hte_client.cli.styles as styles
 from hte_client._enums import EntityType
-from hte_client._exceptions import InvalidDOIUrl
-from hte_client.core.download import download_doi
+from hte_client._exceptions import (
+    ConnectionTimeoutError,
+    DeadUrlError,
+    DOINotFound,
+    HTEClientException,
+    RequestLimitation,
+)
+from hte_client.core.download import async_download_doi, get_redirect_link_from_doi, get_zip_links_from_doi
 from hte_client.core.queries import get_doi
 
 download_app = typer.Typer(
@@ -38,8 +45,8 @@ def download_doi_command(
     """
     with styles.console.status('Downloading DOI zip...'):
         try:
-            download_doi(doi, path)
-        except InvalidDOIUrl:
+            asyncio.run(async_download_doi(doi, path))
+        except DOINotFound:
             styles.bad_typer_print(f'DOI provided is invalid, see https://doi.org/{doi} for details')
             raise typer.Exit(code=1)
     styles.delimiter()
@@ -51,7 +58,7 @@ def download_entity(
     entity_type: EntityType = typer.Option(..., '--entity', help='Path to sql file to run query from'),
     entity_id: Optional[UUID] = typer.Option(None, '--id', help='Path to sql file to run query from'),
     entity_label: Optional[str] = typer.Option(None, '--label', help='Path to sql file to run query from'),
-    path: Path = typer.Option(..., '--path', help='Path to download the doi to'),
+    path: Path = typer.Option(None, '--path', help='Path to download the doi to'),
 ):
     """
     Download a doi from Caltech Data using an entity type and label/uuid.
@@ -62,14 +69,55 @@ def download_entity(
         if doi is None:
             styles.bad_typer_print(f'No doi found for entity {entity_type}({lable_str})')
             raise typer.Exit(code=1)
-    with styles.console.status('Downloading DOI zip...'):
+
+    # Default path is created from entity label and path
+    if path is None:
+        path = Path.cwd() / f'results/{entity_type}/{(entity_id or entity_label)}/'
+    with styles.console.status(f'Downloading DOI zip to \'{path}\'...'):
         try:
-            download_doi(doi, path)
-        except InvalidDOIUrl:
+            asyncio.run(async_download_doi(doi, path))
+        except DOINotFound:
             styles.bad_typer_print(
                 f'DOI found for entity {entity_type}({lable_str}) is invalid, see https://doi.org/{doi} for details'
+            )
+            raise typer.Exit(code=1)
+        except ConnectionTimeoutError:
+            styles.bad_typer_print(f'Download request timed out, see https://doi.org/{doi} for details')
+            raise typer.Exit(code=1)
+        except DeadUrlError as exc:
+            styles.bad_typer_print(
+                f'DOI redirects to a dead url {exc.dead_url}, https://doi.org/{doi} for details'
             )
             raise typer.Exit(code=1)
 
     styles.delimiter()
     styles.console.print(f'Finished downloading, files extracted to {str(path)!r}')
+
+
+@download_app.command(name="check")
+def check_doi(
+    doi: str = typer.Option(..., '--doi', help='Doi to download'),
+):
+    """
+    Download a doi from Caltech Data.
+    """
+    with styles.console.status('Downloading DOI zip...'):
+        try:
+            link = asyncio.run(get_redirect_link_from_doi(doi))
+            if link is None:
+                styles.bad_typer_print(f'DOI webpage did not redirect, see https://doi.org/{doi} for details')
+                return
+            elif link.startswith('https://www.htejcap.org'):
+                styles.bad_typer_print(f'Found bad redirect url, {link}, connection will likely fail.')
+            else:
+                styles.console.print(f'Redirect link {link} found for doi {doi}')
+            zip_links = asyncio.run(get_zip_links_from_doi(doi))
+            if zip_links:
+                styles.console.print(f'Zip links found for doi {doi}, {(", ".join(zip_links))}')
+        except RequestLimitation:
+            styles.bad_typer_print(f'You have made too many requests, please wait and try again.')
+            raise typer.Exit(code=1)
+        except HTEClientException:
+            styles.bad_typer_print(f'DOI is invalid, see https://doi.org/{doi} for details')
+            raise typer.Exit(code=1)
+    styles.delimiter()
