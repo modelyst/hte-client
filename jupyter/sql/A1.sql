@@ -4,8 +4,8 @@ select
 	count(*)
 from
 	collection
-join collection_sample on
-	collection_sample.collection_id = collection.id
+join collection__sample on
+	collection__sample.collection_id = collection.id
 group by
 	collection.type,
 	collection.label

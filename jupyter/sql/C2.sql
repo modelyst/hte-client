@@ -1,9 +1,9 @@
 select
-	analysis_name,
+	name,
 	count(*)
 from
 	analysis a
 group by
-	analysis_name
+	name
 order by
 	count(*) desc

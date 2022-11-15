@@ -20,7 +20,7 @@ from rich.table import Table
 
 import hte_client.cli.styles as styles
 from hte_client._enums import EntityType
-from hte_client.core.queries import get_doi, get_process_history, run_raw_query
+from hte_client.core.queries import get_doi, get_process_history, get_sample, run_raw_query
 
 query_app = typer.Typer(name='query', no_args_is_help=True, help="Test connection to the database.")
 
@@ -102,11 +102,15 @@ def get_process_history_command(
     process_history = get_process_history(sample_id, sample_label)
     id_str = f'id={sample_id}' if sample_id else f'label={sample_label}'
     id_str = f'Sample({id_str})'
-    if process_history:
-        _process_ids, type_list, tech_list = process_history
+    process_ids, type_list, tech_list = process_history
+    if process_ids:
         history = (f'{proc_type}({tech})' for proc_type, tech in zip(type_list, tech_list))
         styles.console.print(f'{id_str} has history:')
         history_string = ' -> '.join(history)
         styles.console.print(f'{history_string}')
     else:
-        styles.bad_typer_print(f'{id_str} could not be found.')
+        sample = get_sample(sample_id, sample_label)
+        if sample is None:
+            styles.bad_typer_print(f'{id_str} could not be found.')
+        else:
+            styles.bad_typer_print(f'{id_str} has no process history.')

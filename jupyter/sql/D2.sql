@@ -15,12 +15,12 @@ join sample_process sp on
 	sppd.sample_process_id = sp.id
 join sample s on
 	sp.sample_id = s.id
-join collection_sample cs on
+join collection__sample cs on
 	cs.sample_id = s.id
 join collection c on
 	cs.collection_id = c.id
 where
-	analysis_name = 'CA_FOMS_standard'
+	name = 'CA_FOMS_standard'
 	and c.type='JCAP_plate'
 group by
 	c.label

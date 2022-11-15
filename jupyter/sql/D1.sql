@@ -15,7 +15,7 @@ join sample_process sp on
 join sample s on
 	sp.sample_id = s.id
 where
-	analysis_name = 'CA_FOMS_standard'
+	name = 'CA_FOMS_standard'
 order by
 	fom desc
 limit 10

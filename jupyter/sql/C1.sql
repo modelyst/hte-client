@@ -1,14 +1,14 @@
 select
 	ad.id,
-	ad.analysis_name,
+	ad.name,
 	count(*)
 from
 	analysis a
-join analysis_detail ad on
+join analysis_details ad on
 	a.analysis_detail_id = ad.id
 group by
 	ad.id,
-	ad.analysis_name
+	ad.name
 having
 	count(*) > 1
 order by

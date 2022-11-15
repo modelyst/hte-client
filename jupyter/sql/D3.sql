@@ -25,5 +25,5 @@ join process_data_analysis pda2 on
 join analysis a2 on
 	pda2.analysis_id = a2.id
 where
-	a1.analysis_name = 'xrfs_loadings_to_compositions'
-	and a2.analysis_name = 'CA_FOMS_standard'
+	a1.name = 'xrfs_loadings_to_compositions'
+	and a2.name = 'CA_FOMS_standard'
