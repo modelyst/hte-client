@@ -18,7 +18,7 @@ __author__ = "Michael Statt"
 __email__ = "michael.statt@modelyst.io"
 __maintainer__ = "Michael Statt"
 __maintainer_email__ = "michael.statt@modelyst.io"
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 
 from hte_client.core.queries import get_process_history, run_raw_query

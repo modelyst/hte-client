@@ -10,7 +10,7 @@ target-version = ['py36', 'py37', 'py38']
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "v$version"
-version = "0.1.2"
+version = "0.1.3"
 version_files = [
   "pyproject.toml:version",
   "src/hte_client/__init__.py",
@@ -21,7 +21,7 @@ authors = ["Michael Statt <michael.statt@modelyst.io>"]
 description = "HTE Plotting and CLI Tool"
 license = "Apache-2.0"
 name = "hte-client"
-version = "0.1.2"
+version = "0.1.3"
 
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4.0"
